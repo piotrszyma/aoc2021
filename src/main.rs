@@ -1,19 +1,24 @@
+use std::collections::HashMap;
 use std::env;
-use std::fs;
+
+mod day1_task1;
+mod day1_task2;
+
+type Task = fn() -> ();
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let mut tasks_registry = HashMap::<&str, Task>::new();
+    tasks_registry.insert("day1_task1", day1_task1::run);
+    tasks_registry.insert("day1_task2", day1_task2::run);
 
-    let filepath = args.get(1).expect("Failed to read first program argument.");
+    let task_id = match env::args().nth(1) {
+        Some(filepath) => filepath,
+        _ => panic!("First arg must be task id."),
+    };
 
-    let content = fs::read_to_string(filepath).expect("Something went wrong when reading file");
-
-    let nums: Vec<i32> = content
-        .split('\n')
-        .map(|s| s.parse().expect("failed to parse"))
-        .collect();
-
-    for num in nums {
-        println!("{}", num)
+    match tasks_registry.get(&*task_id) {
+        Some(func) => func(),
+        _ => panic!("Invalid task_id={}", task_id)
     }
+
 }
