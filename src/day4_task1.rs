@@ -23,7 +23,7 @@ struct BoardGame {
     numbers: DrawnNumbers,
 }
 
-fn read_boards(boards_lines: Vec<String>) -> Vec<Board> {
+fn read_boards(boards_lines: &[String]) -> Vec<Board> {
     let mut boards: Vec<Board> = Vec::new();
     let mut boards_iter = boards_lines.iter();
 
@@ -61,14 +61,14 @@ fn read_boards(boards_lines: Vec<String>) -> Vec<Board> {
     boards
 }
 
-fn read_nums(line: String) -> Vec<i8> {
+fn read_nums(line: &String) -> Vec<i8> {
     line.split(',').map(|s| s.parse().unwrap()).collect()
 }
 
 fn read_nums_and_boards(reader: BufReader<&std::fs::File>) -> BoardGame {
     let lines: Vec<String> = reader.lines().map(|l| l.unwrap()).collect();
-    let numbers = read_nums(lines.first().unwrap().to_owned());
-    let boards = read_boards(lines[1..].to_owned());
+    let numbers = read_nums(&lines[0]);
+    let boards = read_boards(&lines[1..]);
     BoardGame {
         boards: boards,
         numbers: numbers,
@@ -94,6 +94,7 @@ fn winner(boards: &Vec<Board>) -> Option<&Board> {
             for cell in row {
                 if cell != &-1 {
                     is_winner = false;
+                    break;
                 }
             }
             if is_winner {
@@ -107,7 +108,7 @@ fn winner(boards: &Vec<Board>) -> Option<&Board> {
 
 fn calculate_result(board: &Board, num: i8) -> i32 {
     let mut result: i32 = 0;
-    for row in board.rows.iter() {
+    for row in &board.rows {
         for cell in row {
             if cell != &-1 {
                 result += i32::from(*cell);
@@ -117,13 +118,11 @@ fn calculate_result(board: &Board, num: i8) -> i32 {
     result * i32::from(num)
 }
 
-fn find_winning_board(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
-    let mut boards = boards;
+fn find_winning_board(mut boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
     for num in nums {
-        mark_num(&mut boards, num); // TODO: Add lifetime
-        match winner(&boards) {  // TODO: Add lifetime
+        mark_num(&mut boards, num); 
+        match winner(&boards) {   
             Some(board) => {
-                println!("{:?}", boards);
                 return Some(calculate_result(board, num));
             },
             _ => (),
