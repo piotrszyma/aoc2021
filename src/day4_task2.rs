@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::ops::Range;
 
 type Row = Vec<i8>;
 
@@ -94,45 +95,85 @@ fn is_board_winner(board: &Board) -> bool {
             }
         }
         if is_winner {
-            return true
+            return true;
+        }
+    }
+
+    let row_idx_range = Range { start: 0, end: 4 };
+    for row_idx in row_idx_range {
+        let mut is_winner = true;
+        for row in board.rows.iter() {
+            if row[row_idx] != -1 {
+                is_winner = false;
+            }
+        }
+
+        if is_winner {
+            return true;
         }
     }
     false
 }
 
+// fn filter_winners(boards: &Vec<Board>) -> Vec<&Board> {
+//     boards.iter().filter(|b| !is_board_winner(b)).collect()
+// }
+
 fn winner(boards: &Vec<Board>) -> Option<&Board> {
-    let winners: Vec<_> = boards.iter().filter(|b| !is_board_winner(b)).collect();
-    if winners.len() == 1 {
-        winners.first().unwrap();
+    // The only looser is the true winner.
+    let loosers: Vec<_> = boards.iter().filter(|b| !is_board_winner(b)).collect();
+    if loosers.len() == 1 {
+        Some(*loosers.first().unwrap())
+    } else {
+        None
     }
-    None
 }
 
-fn calculate_result(board: &Board, num: i8) -> i32 {
+fn calculate_result(board: &Board, num: i8, next_num: i8) -> i32 {
     let mut result: i32 = 0;
     for row in board.rows.iter() {
         for cell in row {
-            if cell != &-1 {
+            if cell != &-1 && cell != &next_num {
+                println!("+ cell {}", cell);
                 result += i32::from(*cell);
             }
         }
     }
-    result * i32::from(num)
+    println!("num={}", num);
+    // println!("next_num={}", next_num);
+    println!("sum={}", result);
+    println!("board={:?}", board);
+    result * i32::from(next_num)
 }
 
 fn find_winning_board(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
     let mut boards = boards;
-    for num in nums {
-        mark_num(&mut boards, num); 
+    let mut winner_board: Option<&Board> = None;
+    for window in nums.windows(2) {
+        let num = window[0];
+        let next_num = window[1];
+
+        mark_num(&mut boards, num);
+        // boards = filter_winners((boards: &Vec<Board>))
+        // println!("{:?}", boards);
+
+        // match winner_board {
+        //     Some(board) => {
+        //         return Some(calculate_result(board, num));
+        //     },
+        //     _ => (),
+        // }
+
         match winner(&boards) {
             Some(board) => {
-                println!("{:?}", boards);
-                return Some(calculate_result(board, num));
+                // mark_num(&mut boards, num);
+                // println!("board = {:?}", board);
+                return Some(calculate_result(board, num, next_num));
             }
             _ => (),
         }
     }
-    None
+    panic!("Failed to find a winner")
 }
 
 fn play_game(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
@@ -140,7 +181,7 @@ fn play_game(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
 }
 
 pub fn run() {
-    let file = File::open("data/day4_task1_test.txt").unwrap();
+    let file = File::open("data/day4_task1.txt").unwrap();
     let board_game = read_nums_and_boards(BufReader::new(&file));
 
     let numbers = board_game.numbers;
