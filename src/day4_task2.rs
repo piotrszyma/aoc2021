@@ -115,10 +115,6 @@ fn is_board_winner(board: &Board) -> bool {
     false
 }
 
-// fn filter_winners(boards: &Vec<Board>) -> Vec<&Board> {
-//     boards.iter().filter(|b| !is_board_winner(b)).collect()
-// }
-
 fn winner(boards: &Vec<Board>) -> Option<&Board> {
     // The only looser is the true winner.
     let loosers: Vec<_> = boards.iter().filter(|b| !is_board_winner(b)).collect();
@@ -129,46 +125,30 @@ fn winner(boards: &Vec<Board>) -> Option<&Board> {
     }
 }
 
-fn calculate_result(board: &Board, num: i8, next_num: i8) -> i32 {
+fn calculate_result(board: &Board, next_num: i8) -> i32 {
     let mut result: i32 = 0;
     for row in board.rows.iter() {
         for cell in row {
             if cell != &-1 && cell != &next_num {
-                println!("+ cell {}", cell);
                 result += i32::from(*cell);
             }
         }
     }
-    println!("num={}", num);
-    // println!("next_num={}", next_num);
-    println!("sum={}", result);
-    println!("board={:?}", board);
     result * i32::from(next_num)
 }
 
 fn find_winning_board(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
     let mut boards = boards;
-    let mut winner_board: Option<&Board> = None;
+
     for window in nums.windows(2) {
         let num = window[0];
         let next_num = window[1];
 
         mark_num(&mut boards, num);
-        // boards = filter_winners((boards: &Vec<Board>))
-        // println!("{:?}", boards);
-
-        // match winner_board {
-        //     Some(board) => {
-        //         return Some(calculate_result(board, num));
-        //     },
-        //     _ => (),
-        // }
 
         match winner(&boards) {
             Some(board) => {
-                // mark_num(&mut boards, num);
-                // println!("board = {:?}", board);
-                return Some(calculate_result(board, num, next_num));
+                return Some(calculate_result(board, next_num));
             }
             _ => (),
         }
