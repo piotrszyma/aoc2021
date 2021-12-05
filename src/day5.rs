@@ -44,7 +44,7 @@ fn read_lines_ranges(reader: BufReader<&std::fs::File>) -> Vec<LinesRange> {
     ranges
 }
 
-fn calculate_overlaps(ranges: Vec<&LinesRange>) -> i32 {
+fn calculate_overlaps(ranges: Vec<LinesRange>) -> i32 {
     let mut counts = HashMap::<(i32, i32), i32>::new();
     for range in &ranges {
         if range.start.x == range.end.x {
@@ -75,29 +75,54 @@ fn calculate_overlaps(ranges: Vec<&LinesRange>) -> i32 {
                 *count += 1;
             }
         } else {
-            panic!("Invalid range, should either be start.x == end.x or start.y == end.y")
+            let x_diff = if range.start.x > range.end.x { -1 } else { 1 };
+            let y_diff = if range.start.y > range.end.y { -1 } else { 1 };
+
+            let mut x = range.start.x;
+            let mut y = range.start.y;
+
+            loop {
+                let count = counts.entry((x, y)).or_insert(0);
+                *count += 1;
+
+                if x == range.end.x && y == range.end.y {
+                    break;
+                }
+
+                x += x_diff;
+                y += y_diff;
+            }
         }
-    };
+    }
     let mut overlaps = 0;
-    println!("{:?}", counts);
     for (_, count) in &counts {
         if count > &1 {
             overlaps += 1
         }
-    };
+    }
     overlaps
 }
 
-pub fn run() {
+pub fn task1() {
     let file = File::open("data/day5_task1.txt").unwrap();
     let lines_ranges = read_lines_ranges(BufReader::new(&file));
 
-    let horizontal_vertical_lines_ranges: Vec<_> = lines_ranges
-        .iter()
-        .filter(|&r| r.start.x == r.end.x || r.start.y == r.end.y)
+    let non_diag_lines_ranges: Vec<_> = lines_ranges
+        .into_iter()
+        .filter(|r| r.start.x == r.end.x || r.start.y == r.end.y)
         .collect();
 
-    let result = calculate_overlaps(horizontal_vertical_lines_ranges);
+    let result = calculate_overlaps(non_diag_lines_ranges);
 
     println!("result={:?}", result)
 }
+
+pub fn task2() {
+    let file = File::open("data/day5_task1.txt").unwrap();
+    let lines_ranges = read_lines_ranges(BufReader::new(&file));
+
+    let result = calculate_overlaps(lines_ranges);
+
+    println!("result={:?}", result)
+}
+

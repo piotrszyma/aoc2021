@@ -9,8 +9,7 @@ mod day3_task1;
 mod day3_task2;
 mod day4_task1;
 mod day4_task2;
-mod day5_task1;
-mod day5_task2;
+mod day5;
 
 type Task = fn() -> ();
 
@@ -24,8 +23,8 @@ fn main() {
         ("day3_task2", day3_task2::run),
         ("day4_task1", day4_task1::run),
         ("day4_task2", day4_task2::run),
-        ("day5_task1", day5_task1::run),
-        ("day5_task2", day5_task2::run),
+        ("day5_task1", day5::task1),
+        ("day5_task2", day5::task2),
     ];
     let latest_task = tasks.last().unwrap();
     let tasks_registry = HashMap::from(tasks);
