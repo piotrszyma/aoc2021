@@ -1,9 +1,54 @@
+use core::ops::Range;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
 fn read_bit_strings(reader: BufReader<&std::fs::File>) -> Vec<String> {
     reader.lines().map(|l| l.unwrap()).collect()
+}
+
+pub fn task1_run(path: &str) -> i32 {
+    let file = File::open(path).unwrap();
+    let bit_strings = read_bit_strings(BufReader::new(&file));
+
+    let no_bits = bit_strings[0].len();
+    let mut zeros = vec![0; no_bits];
+    let mut ones = vec![0; no_bits];
+
+    for bit_string in bit_strings {
+        for (index, bit) in bit_string.chars().enumerate() {
+            if bit == '0' {
+                zeros[index] += 1;
+            } else {
+                ones[index] += 1;
+            }
+        }
+    }
+
+    let bits_range = Range {
+        start: 0,
+        end: no_bits,
+    };
+
+    let mut gamma_bits: Vec<i32> = vec![0; no_bits];
+    for id in bits_range {
+        if zeros[id] > ones[id] {
+            gamma_bits[id] = 0
+        } else {
+            gamma_bits[id] = 1
+        }
+    }
+
+    let mut gamma_rate = 0;
+    let mut epsilon_rate = 0;
+    for (idx, value) in gamma_bits.iter().rev().enumerate() {
+        if value == &1 {
+            gamma_rate += 1 << idx;
+        } else {
+            epsilon_rate += 1 << idx;
+        }
+    };
+    epsilon_rate * gamma_rate
 }
 
 type TakeOnesWhenFn = fn(a: i32, b: i32) -> bool;
@@ -66,20 +111,51 @@ fn bitstring_to_i32(bit_string: Vec<char>) -> i32 {
     result
 }
 
-pub fn run() {
-    let file = File::open("data/day3_task1.txt").unwrap();
+pub fn task2_run(path: &str) -> i32 {
+    let file = File::open(path).unwrap();
     let bit_strings = read_bit_strings(BufReader::new(&file));
     let nums: Vec<Vec<char>> = bit_strings
         .iter()
         .map(|bit_string| bit_string.chars().collect())
         .collect();
 
-    let more_result = bitstring_to_i32(find_more(nums.to_owned())); //TODO: Can I just borrow read only? 
+    let more_result = bitstring_to_i32(find_more(nums.to_owned())); //TODO: Can I just borrow read only?
     let less_result = bitstring_to_i32(find_less(nums));
-
-    println!("more_result={:?}", more_result);
-    println!("less_result={:?}", less_result);
-    let result = more_result * less_result;
-
-    println!("result={:?}", result);
+    more_result * less_result
 }
+
+pub fn task1() -> i32 {
+    task1_run("data/day3_task1.txt")
+}
+
+
+pub fn task2() -> i32 {
+    task2_run("data/day3_task1.txt")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn task1_test_data() {
+        assert_eq!(198, task1_run("data/day3_task1_test.txt"))
+    }
+
+    #[test]
+    fn task1() {
+        assert_eq!(741950, task1_run("data/day3_task1.txt"))
+    }
+
+    #[test]
+    fn task2_test_data() {
+        assert_eq!(230, task2_run("data/day3_task1_test.txt"))
+    }
+
+    #[test]
+    fn task2() {
+        assert_eq!(903810, task2_run("data/day3_task1.txt"))
+    }
+}
+
+

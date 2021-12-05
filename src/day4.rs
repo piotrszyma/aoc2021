@@ -115,7 +115,7 @@ fn is_board_winner(board: &Board) -> bool {
     false
 }
 
-fn winner(boards: &Vec<Board>) -> Option<&Board> {
+fn winner_latest(boards: &Vec<Board>) -> Option<&Board> {
     // The only looser is the true winner.
     let loosers: Vec<_> = boards.iter().filter(|b| !is_board_winner(b)).collect();
     if loosers.len() == 1 {
@@ -125,7 +125,7 @@ fn winner(boards: &Vec<Board>) -> Option<&Board> {
     }
 }
 
-fn calculate_result(board: &Board, next_num: i8) -> i32 {
+fn calculate_result_extended(board: &Board, next_num: i8) -> i32 {
     let mut result: i32 = 0;
     for row in &board.rows {
         for cell in row {
@@ -137,7 +137,7 @@ fn calculate_result(board: &Board, next_num: i8) -> i32 {
     result * i32::from(next_num)
 }
 
-fn find_winning_board(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
+fn find_winning_board_extended(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
     let mut boards = boards;
 
     for window in nums.windows(2) {
@@ -146,10 +146,9 @@ fn find_winning_board(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
 
         mark_num(&mut boards, *num);
 
-        match winner(&boards) {
+        match winner_latest(&boards) {
             Some(board) => {
-                return Some(calculate_result(board, *next_num));
-
+                return Some(calculate_result_extended(board, *next_num));
             }
             _ => (),
         }
@@ -157,18 +156,109 @@ fn find_winning_board(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
     panic!("Failed to find a winner")
 }
 
-fn play_game(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
-    find_winning_board(boards, nums)
+fn play_game_extended(boards: Vec<Board>, nums: DrawnNumbers) -> i32 {
+    find_winning_board_extended(boards, nums).expect("Failed to find winning board")
 }
 
-pub fn run() {
-    let file = File::open("data/day4_task1.txt").unwrap();
+fn winner(boards: &Vec<Board>) -> Option<&Board> {
+    for board in boards {
+        for row in board.rows.iter() {
+            let mut is_winner = true;
+            for cell in row {
+                if cell != &-1 {
+                    is_winner = false;
+                    break;
+                }
+            }
+            if is_winner {
+                return Some(board);
+            }
+        }
+        // TODO: Check also columns.
+    }
+    None
+}
+
+fn calculate_result(board: &Board, num: i8) -> i32 {
+    let mut result: i32 = 0;
+    for row in &board.rows {
+        for cell in row {
+            if cell != &-1 {
+                result += i32::from(*cell);
+            }
+        }
+    }
+    result * i32::from(num)
+}
+
+fn find_winning_board(mut boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
+    for num in nums {
+        mark_num(&mut boards, num);
+        match winner(&boards) {
+            Some(board) => {
+                return Some(calculate_result(board, num));
+            }
+            _ => (),
+        }
+    }
+    None
+}
+
+fn play_game(boards: Vec<Board>, nums: DrawnNumbers) -> i32 {
+    find_winning_board(boards, nums).expect("Failed to find winning board")
+}
+
+pub fn task1_run(path: &str) -> i32 {
+    let file = File::open(path).unwrap();
+    let board_game = read_nums_and_boards(BufReader::new(&file));
+
+    let numbers = board_game.numbers;
+    let boards = board_game.boards;
+    play_game(boards, numbers)
+}
+
+pub fn task2_run(path: &str) -> i32 {
+    let file = File::open(path).unwrap();
     let board_game = read_nums_and_boards(BufReader::new(&file));
 
     let numbers = board_game.numbers;
     let boards = board_game.boards;
 
-    let result = play_game(boards, numbers);
-
-    println!("result={:?}", result)
+    play_game_extended(boards, numbers)
 }
+
+pub fn task1() -> i32 {
+    task1_run("data/day4_task1.txt")
+}
+
+pub fn task2() -> i32 {
+    task2_run("data/day4_task1.txt")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn task1_test_data() {
+        assert_eq!(4512, task1_run("data/day4_task1_test.txt"))
+    }
+
+    #[test]
+    fn task1() {
+        assert_eq!(39984, task1_run("data/day4_task1.txt"))
+    }
+
+    #[test]
+    fn task2_test_data() {
+        assert_eq!(1924, task2_run("data/day4_task1_test.txt"))
+    }
+
+    #[test]
+    fn task2() {
+        assert_eq!(8468, task2_run("data/day4_task1.txt"))
+    }
+}
+
+
+

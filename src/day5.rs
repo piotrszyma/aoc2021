@@ -103,8 +103,8 @@ fn calculate_overlaps(ranges: Vec<LinesRange>) -> i32 {
     overlaps
 }
 
-pub fn task1() {
-    let file = File::open("data/day5_task1.txt").unwrap();
+pub fn task1_run(path: &str) -> i32 {
+    let file = File::open(path).unwrap();
     let lines_ranges = read_lines_ranges(BufReader::new(&file));
 
     let non_diag_lines_ranges: Vec<_> = lines_ranges
@@ -113,16 +113,49 @@ pub fn task1() {
         .collect();
 
     let result = calculate_overlaps(non_diag_lines_ranges);
-
-    println!("result={:?}", result)
+    result
 }
 
-pub fn task2() {
-    let file = File::open("data/day5_task1.txt").unwrap();
+pub fn task2_run(path: &str) -> i32 {
+    let file = File::open(path).unwrap();
     let lines_ranges = read_lines_ranges(BufReader::new(&file));
 
     let result = calculate_overlaps(lines_ranges);
-
-    println!("result={:?}", result)
+    result
 }
+
+pub fn task1() -> i32 {
+    task1_run("data/day5_task1.txt")
+}
+
+pub fn task2() -> i32 {
+    task2_run("data/day5_task1.txt")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn task1_test_data() {
+        assert_eq!(5, task1_run("data/day5_task1_test.txt"))
+    }
+
+    #[test]
+    fn task1() {
+        assert_eq!(7473, task1_run("data/day5_task1.txt"))
+    }
+
+    #[test]
+    fn task2_test_data() {
+        assert_eq!(12, task2_run("data/day5_task1_test.txt"))
+    }
+
+    #[test]
+    fn task2() {
+        assert_eq!(24164, task2_run("data/day5_task1.txt"))
+    }
+}
+
+
 

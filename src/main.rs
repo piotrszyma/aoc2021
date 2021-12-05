@@ -1,28 +1,24 @@
 use std::collections::HashMap;
 use std::env;
 
-mod day1_task1;
-mod day1_task2;
-mod day2_task1;
-mod day2_task2;
-mod day3_task1;
-mod day3_task2;
-mod day4_task1;
-mod day4_task2;
+mod day1;
+mod day2;
+mod day3;
+mod day4;
 mod day5;
 
-type Task = fn() -> ();
+type Task = fn() -> i32;
 
 fn main() {
     let tasks: [(&str, Task); 10] = [
-        ("day1_task1", day1_task1::run),
-        ("day1_task2", day1_task2::run),
-        ("day2_task1", day2_task1::run),
-        ("day2_task2", day2_task2::run),
-        ("day3_task1", day3_task1::run),
-        ("day3_task2", day3_task2::run),
-        ("day4_task1", day4_task1::run),
-        ("day4_task2", day4_task2::run),
+        ("day1_task1", day1::task1),
+        ("day1_task2", day1::task2),
+        ("day2_task1", day2::task1),
+        ("day2_task2", day2::task2),
+        ("day3_task1", day3::task1),
+        ("day3_task2", day3::task2),
+        ("day4_task1", day4::task1),
+        ("day4_task2", day4::task2),
         ("day5_task1", day5::task1),
         ("day5_task2", day5::task2),
     ];
@@ -34,11 +30,12 @@ fn main() {
         _ => (*latest_task).0.to_string(),
     };
 
-    match tasks_registry.get(&*task_id) {
+    let result = match tasks_registry.get(&*task_id) {
         Some(func) => {
             println!("Running task_id: {}", task_id);
-            func();
+            func()
         }
         _ => panic!("Invalid task_id: {}", task_id),
-    }
+    };
+    println!("result: {}", result)
 }
