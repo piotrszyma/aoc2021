@@ -228,11 +228,11 @@ pub fn task2_run(path: &str) -> i32 {
 }
 
 pub fn task1() -> i32 {
-    task1_run("data/day4_task1.txt")
+    task1_run("data/day4.txt")
 }
 
 pub fn task2() -> i32 {
-    task2_run("data/day4_task1.txt")
+    task2_run("data/day4.txt")
 }
 
 #[cfg(test)]
