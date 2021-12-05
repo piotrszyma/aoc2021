@@ -95,7 +95,7 @@ fn task1_run(path: &str) -> i32 {
 }
 
 pub fn task1() -> i32 {
-    task1_run("data/day2_task1.txt")
+    task1_run("data/day2.txt")
 }
 
 fn task2_run(path: &str) -> i32 {
@@ -106,7 +106,7 @@ fn task2_run(path: &str) -> i32 {
 }
 
 pub fn task2() -> i32 {
-    task2_run("data/day2_task1.txt")
+    task2_run("data/day2.txt")
 }
 
 #[cfg(test)]
@@ -115,22 +115,22 @@ mod tests {
 
     #[test]
     fn task1_test_data() {
-        assert_eq!(150, task1_run("data/day2_task1_test.txt"))
+        assert_eq!(150, task1_run("data/day2_test.txt"))
     }
 
     #[test]
     fn task1() {
-        assert_eq!(2322630, task1_run("data/day2_task1.txt"))
+        assert_eq!(2322630, task1_run("data/day2.txt"))
     }
 
     #[test]
     fn task2_test_data() {
-        assert_eq!(900, task2_run("data/day2_task1_test.txt"))
+        assert_eq!(900, task2_run("data/day2_test.txt"))
     }
 
     #[test]
     fn task2() {
-        assert_eq!(2105273490, task2_run("data/day2_task1.txt"))
+        assert_eq!(2105273490, task2_run("data/day2.txt"))
     }
 }
 

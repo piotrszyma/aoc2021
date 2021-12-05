@@ -241,22 +241,22 @@ mod tests {
 
     #[test]
     fn task1_test_data() {
-        assert_eq!(4512, task1_run("data/day4_task1_test.txt"))
+        assert_eq!(4512, task1_run("data/day4_test.txt"))
     }
 
     #[test]
     fn task1() {
-        assert_eq!(39984, task1_run("data/day4_task1.txt"))
+        assert_eq!(39984, task1_run("data/day4.txt"))
     }
 
     #[test]
     fn task2_test_data() {
-        assert_eq!(1924, task2_run("data/day4_task1_test.txt"))
+        assert_eq!(1924, task2_run("data/day4_test.txt"))
     }
 
     #[test]
     fn task2() {
-        assert_eq!(8468, task2_run("data/day4_task1.txt"))
+        assert_eq!(8468, task2_run("data/day4.txt"))
     }
 }
 

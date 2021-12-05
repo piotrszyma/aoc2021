@@ -41,11 +41,11 @@ fn task2_run(input_path: &str) -> i32 {
 }
 
 pub fn task1() -> i32 {
-    task1_run("data/day1_task1.txt")
+    task1_run("data/day1.txt")
 }
 
 pub fn task2() -> i32 {
-    task2_run("data/day1_task1.txt")
+    task2_run("data/day1.txt")
 }
 
 #[cfg(test)]
@@ -53,11 +53,11 @@ mod tests {
     use super::*;
     #[test]
     fn task1() {
-        assert_eq!(1226, task1_run("data/day1_task1.txt"))
+        assert_eq!(1226, task1_run("data/day1.txt"))
     }
 
     #[test]
     fn task2() {
-        assert_eq!(1252, task2_run("data/day1_task1.txt"))
+        assert_eq!(1252, task2_run("data/day1.txt"))
     }
 }
