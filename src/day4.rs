@@ -125,19 +125,19 @@ fn winner_latest(boards: &Vec<Board>) -> Option<&Board> {
     }
 }
 
-fn calculate_result_extended(board: &Board, next_num: i8) -> i32 {
-    let mut result: i32 = 0;
+fn calculate_result_extended(board: &Board, next_num: i8) -> i64 {
+    let mut result: i64 = 0;
     for row in &board.rows {
         for cell in row {
             if cell != &-1 && cell != &next_num {
-                result += i32::from(*cell);
+                result += i64::from(*cell);
             }
         }
     }
-    result * i32::from(next_num)
+    result * i64::from(next_num)
 }
 
-fn find_winning_board_extended(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
+fn find_winning_board_extended(boards: Vec<Board>, nums: DrawnNumbers) -> Option<i64> {
     let mut boards = boards;
 
     for window in nums.windows(2) {
@@ -156,7 +156,7 @@ fn find_winning_board_extended(boards: Vec<Board>, nums: DrawnNumbers) -> Option
     panic!("Failed to find a winner")
 }
 
-fn play_game_extended(boards: Vec<Board>, nums: DrawnNumbers) -> i32 {
+fn play_game_extended(boards: Vec<Board>, nums: DrawnNumbers) -> i64 {
     find_winning_board_extended(boards, nums).expect("Failed to find winning board")
 }
 
@@ -179,19 +179,19 @@ fn winner(boards: &Vec<Board>) -> Option<&Board> {
     None
 }
 
-fn calculate_result(board: &Board, num: i8) -> i32 {
-    let mut result: i32 = 0;
+fn calculate_result(board: &Board, num: i8) -> i64 {
+    let mut result: i64 = 0;
     for row in &board.rows {
         for cell in row {
             if cell != &-1 {
-                result += i32::from(*cell);
+                result += i64::from(*cell);
             }
         }
     }
-    result * i32::from(num)
+    result * i64::from(num)
 }
 
-fn find_winning_board(mut boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32> {
+fn find_winning_board(mut boards: Vec<Board>, nums: DrawnNumbers) -> Option<i64> {
     for num in nums {
         mark_num(&mut boards, num);
         match winner(&boards) {
@@ -204,11 +204,11 @@ fn find_winning_board(mut boards: Vec<Board>, nums: DrawnNumbers) -> Option<i32>
     None
 }
 
-fn play_game(boards: Vec<Board>, nums: DrawnNumbers) -> i32 {
+fn play_game(boards: Vec<Board>, nums: DrawnNumbers) -> i64 {
     find_winning_board(boards, nums).expect("Failed to find winning board")
 }
 
-pub fn task1_run(path: &str) -> i32 {
+pub fn task1_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let board_game = read_nums_and_boards(BufReader::new(&file));
 
@@ -217,7 +217,7 @@ pub fn task1_run(path: &str) -> i32 {
     play_game(boards, numbers)
 }
 
-pub fn task2_run(path: &str) -> i32 {
+pub fn task2_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let board_game = read_nums_and_boards(BufReader::new(&file));
 
@@ -227,11 +227,11 @@ pub fn task2_run(path: &str) -> i32 {
     play_game_extended(boards, numbers)
 }
 
-pub fn task1() -> i32 {
+pub fn task1() -> i64 {
     task1_run("data/day4.txt")
 }
 
-pub fn task2() -> i32 {
+pub fn task2() -> i64 {
     task2_run("data/day4.txt")
 }
 

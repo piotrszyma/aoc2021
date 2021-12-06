@@ -12,13 +12,13 @@ enum BoatDirection {
 #[derive(Debug)]
 struct BoatCommand {
     direction: BoatDirection,
-    distance: i32,
+    distance: i64,
 }
 
 #[derive(Debug)]
 struct BoatPosition {
-    horizontal_position: i32,
-    depth: i32,
+    horizontal_position: i64,
+    depth: i64,
 }
 
 fn read_commands(reader: BufReader<&std::fs::File>) -> Vec<BoatCommand> {
@@ -29,7 +29,7 @@ fn read_commands(reader: BufReader<&std::fs::File>) -> Vec<BoatCommand> {
             let split: Vec<&str> = line.split(" ").collect();
             let direction = split.get(0).unwrap();
             let raw_distance: String = split.get(1).unwrap().to_string();
-            let distance: i32 = raw_distance
+            let distance: i64 = raw_distance
                 .parse()
                 .expect(&format!("Expected {} to be a number.", &raw_distance));
             BoatCommand {
@@ -87,25 +87,25 @@ fn final_position_with_aim(commands: Vec<BoatCommand>) -> BoatPosition {
     }
 }
 
-fn task1_run(path: &str) -> i32 {
+fn task1_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let commands = read_commands(BufReader::new(&file));
     let position = final_position(commands);
     position.depth * position.horizontal_position
 }
 
-pub fn task1() -> i32 {
+pub fn task1() -> i64 {
     task1_run("data/day2.txt")
 }
 
-fn task2_run(path: &str) -> i32 {
+fn task2_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let commands = read_commands(BufReader::new(&file));
     let position = final_position_with_aim(commands);
     position.depth * position.horizontal_position
 }
 
-pub fn task2() -> i32 {
+pub fn task2() -> i64 {
     task2_run("data/day2.txt")
 }
 

@@ -7,7 +7,7 @@ fn read_bit_strings(reader: BufReader<&std::fs::File>) -> Vec<String> {
     reader.lines().map(|l| l.unwrap()).collect()
 }
 
-pub fn task1_run(path: &str) -> i32 {
+pub fn task1_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let bit_strings = read_bit_strings(BufReader::new(&file));
 
@@ -30,7 +30,7 @@ pub fn task1_run(path: &str) -> i32 {
         end: no_bits,
     };
 
-    let mut gamma_bits: Vec<i32> = vec![0; no_bits];
+    let mut gamma_bits: Vec<i64> = vec![0; no_bits];
     for id in bits_range {
         if zeros[id] > ones[id] {
             gamma_bits[id] = 0
@@ -51,7 +51,7 @@ pub fn task1_run(path: &str) -> i32 {
     epsilon_rate * gamma_rate
 }
 
-type TakeOnesWhenFn = fn(a: i32, b: i32) -> bool;
+type TakeOnesWhenFn = fn(a: i64, b: i64) -> bool;
 
 fn find_at(nums: Vec<Vec<char>>, idx: usize, take_ones_when_fn: TakeOnesWhenFn) -> Vec<char> {
     let mut ones_at_idx = 0;
@@ -101,7 +101,7 @@ fn find_more(nums: Vec<Vec<char>>) -> Vec<char> {
     }
 }
 
-fn bitstring_to_i32(bit_string: Vec<char>) -> i32 {
+fn bitstring_to_i64(bit_string: Vec<char>) -> i64 {
     let mut result = 0;
     for (idx, value) in bit_string.iter().rev().enumerate() {
         if value == &'1' {
@@ -111,7 +111,7 @@ fn bitstring_to_i32(bit_string: Vec<char>) -> i32 {
     result
 }
 
-pub fn task2_run(path: &str) -> i32 {
+pub fn task2_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let bit_strings = read_bit_strings(BufReader::new(&file));
     let nums: Vec<Vec<char>> = bit_strings
@@ -119,17 +119,17 @@ pub fn task2_run(path: &str) -> i32 {
         .map(|bit_string| bit_string.chars().collect())
         .collect();
 
-    let more_result = bitstring_to_i32(find_more(nums.to_owned())); //TODO: Can I just borrow read only?
-    let less_result = bitstring_to_i32(find_less(nums));
+    let more_result = bitstring_to_i64(find_more(nums.to_owned())); //TODO: Can I just borrow read only?
+    let less_result = bitstring_to_i64(find_less(nums));
     more_result * less_result
 }
 
-pub fn task1() -> i32 {
+pub fn task1() -> i64 {
     task1_run("data/day3.txt")
 }
 
 
-pub fn task2() -> i32 {
+pub fn task2() -> i64 {
     task2_run("data/day3.txt")
 }
 

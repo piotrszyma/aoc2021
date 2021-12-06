@@ -8,7 +8,7 @@ mod day4;
 mod day5;
 mod day6;
 
-type Task = fn() -> u64;
+type Task = fn() -> i64;
 
 struct TaskRegistry {
     tasks: HashMap<String, Task>,
@@ -54,6 +54,7 @@ fn main() {
         ("day5_task1", day5::task1),
         ("day5_task2", day5::task2),
         ("day6_task1", day6::task1),
+        ("day6_task2", day6::task2),
     ]);
 
     let task_id = match env::args().nth(1) {

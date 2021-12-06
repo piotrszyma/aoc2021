@@ -7,8 +7,8 @@ use std::ops::Range;
 
 #[derive(Debug)]
 struct Point {
-    x: i32,
-    y: i32,
+    x: i64,
+    y: i64,
 }
 
 impl Point {
@@ -16,8 +16,8 @@ impl Point {
         let mut coords = point_str.split(',');
         let x = coords.next().expect("point_str should be 'x,y'");
         let y = coords.next().expect("point_str should be 'x,y'");
-        let x: i32 = x.parse().expect("point_str x should be int");
-        let y: i32 = y.parse().expect("point_str y should be int");
+        let x: i64 = x.parse().expect("point_str x should be int");
+        let y: i64 = y.parse().expect("point_str y should be int");
         return Point { x, y };
     }
 }
@@ -44,8 +44,8 @@ fn read_lines_ranges(reader: BufReader<&std::fs::File>) -> Vec<LinesRange> {
     ranges
 }
 
-fn calculate_overlaps(ranges: Vec<LinesRange>) -> i32 {
-    let mut counts = HashMap::<(i32, i32), i32>::new();
+fn calculate_overlaps(ranges: Vec<LinesRange>) -> i64 {
+    let mut counts = HashMap::<(i64, i64), i64>::new();
     for range in &ranges {
         if range.start.x == range.end.x {
             let x = range.start.x;
@@ -103,7 +103,7 @@ fn calculate_overlaps(ranges: Vec<LinesRange>) -> i32 {
     overlaps
 }
 
-pub fn task1_run(path: &str) -> i32 {
+pub fn task1_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let lines_ranges = read_lines_ranges(BufReader::new(&file));
 
@@ -116,7 +116,7 @@ pub fn task1_run(path: &str) -> i32 {
     result
 }
 
-pub fn task2_run(path: &str) -> i32 {
+pub fn task2_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let lines_ranges = read_lines_ranges(BufReader::new(&file));
 
@@ -124,11 +124,11 @@ pub fn task2_run(path: &str) -> i32 {
     result
 }
 
-pub fn task1() -> i32 {
+pub fn task1() -> i64 {
     task1_run("data/day5.txt")
 }
 
-pub fn task2() -> i32 {
+pub fn task2() -> i64 {
     task2_run("data/day5.txt")
 }
 
