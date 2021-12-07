@@ -68,7 +68,6 @@ fn find_best_position(
 fn find_least_fuel_to_align(crabs: Vec<i64>, fuel_calc: FuelCalcFn) -> i64 {
     let start_position = find_most_common(&crabs);
     let fuel_needed = fuel_calc(&crabs, start_position);
-    println!("start_position={}, fuel_needed={}", start_position, fuel_needed);
     find_best_position(&crabs, start_position, fuel_needed, fuel_calc)
 }
 
@@ -114,7 +113,8 @@ mod tests {
         assert_eq!(168, task2_run(TEST_DATA_FILEPATH))
     }
 
-    #[test]
+    // TODO: Introduce cache for distance calculating.
+    #[test] #[ignore]
     fn task2() {
         assert_eq!(99266250, task2_run(DATA_FILEPATH))
     }
