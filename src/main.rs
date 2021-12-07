@@ -7,6 +7,7 @@ mod day3;
 mod day4;
 mod day5;
 mod day6;
+mod day7;
 
 type Task = fn() -> i64;
 
@@ -55,6 +56,8 @@ fn main() {
         ("day5_task2", day5::task2),
         ("day6_task1", day6::task1),
         ("day6_task2", day6::task2),
+        ("day7_task1", day7::task1),
+        ("day7_task2", day7::task2),
     ]);
 
     let task_id = match env::args().nth(1) {
