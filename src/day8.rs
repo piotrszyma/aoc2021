@@ -2,7 +2,6 @@ use crate::HashMap;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
-use std::str::Chars;
 
 static DATA_FILEPATH: &str = "data/day8.txt";
 
@@ -116,25 +115,28 @@ fn find_char_mapped_to_g_and_nine(
     (nums, resolved)
 }
 
-fn find_char_mapped_to_e(
+fn find_char_mapped_to_by_substraction(
     nums: NumsToOptions,
     mut resolved: CharToResolvedChar,
+    searched_char: &str,
+    minuend: &str,
+    subtrahend: &str,
 ) -> (NumsToOptions, CharToResolvedChar) {
-    let four = nums.get("4").unwrap().first().unwrap();
-    let eight = nums.get("8").unwrap().first().unwrap();
+    let minued = nums.get(minuend).unwrap().first().unwrap();
+    let subtrahend = nums.get(subtrahend).unwrap().first().unwrap();
 
-    let result = substract(eight, four);
+    let result = substract(minued, subtrahend);
     if result.len() != 1 {
-        panic!("Failed to find e by doing 8 - 4")
+        panic!("Failed to find {}", searched_char)
     };
 
-    let char_mapped_to_e = result;
+    let char_mapped_to = result;
 
-    resolved.insert(char_mapped_to_e.to_string(), "e".to_string());
-    let nums = filter_out_char(nums, char_mapped_to_e);
+    resolved.insert(char_mapped_to.to_string(), searched_char.to_string());
+    let nums = filter_out_char(nums, char_mapped_to);
     (nums, resolved)
-}
 
+}
 
 fn find_two(
     mut nums: NumsToOptions,
@@ -164,49 +166,6 @@ fn find_two(
 
     (nums, resolved)
 }
-
-fn find_char_mapped_to_d(
-    nums: NumsToOptions,
-    mut resolved: CharToResolvedChar,
-)-> (NumsToOptions, CharToResolvedChar) {
-    let two = nums.get("2").unwrap().first().unwrap();
-    let one = nums.get("1").unwrap().first().unwrap();
-
-    let char_mapped_to_d = substract(two, one);
-
-    if char_mapped_to_d.len() != 1 {
-        panic!("Failed to find char mapped to d")
-    }
-
-
-    resolved.insert(char_mapped_to_d.to_string(), "d".to_string());
-    let nums = filter_out_char(nums, char_mapped_to_d);
-
-
-    (nums, resolved)
-}
-
-fn find_char_mapped_to_b(
-    nums: NumsToOptions,
-    mut resolved: CharToResolvedChar,
-)-> (NumsToOptions, CharToResolvedChar) {
-    let four = nums.get("4").unwrap().first().unwrap();
-    let one = nums.get("1").unwrap().first().unwrap();
-
-    let char_mapped_to_b = substract(four, one);
-
-    if char_mapped_to_b.len() != 1 {
-        panic!("Failed to find char mapped to b")
-    }
-
-
-    resolved.insert(char_mapped_to_b.to_string(), "b".to_string());
-    let nums = filter_out_char(nums, char_mapped_to_b);
-
-
-    (nums, resolved)
-}
-
 
 fn find_char_mapped_to_c(
     nums: NumsToOptions,
@@ -269,10 +228,10 @@ fn decode_and_figure_value(entry: NotesEntry) -> i64 {
     }
     let (nums, chars_to_resolved_chars) = find_char_mapped_to_a(nums);
     let (nums, chars_to_resolved_chars) = find_char_mapped_to_g_and_nine(nums, chars_to_resolved_chars);
-    let (nums, chars_to_resolved_chars) = find_char_mapped_to_e(nums, chars_to_resolved_chars);
+    let (nums, chars_to_resolved_chars) = find_char_mapped_to_by_substraction(nums, chars_to_resolved_chars, "e", "8", "4");
     let (nums, chars_to_resolved_chars) = find_two(nums, chars_to_resolved_chars);
-    let (nums, chars_to_resolved_chars) = find_char_mapped_to_d(nums, chars_to_resolved_chars);
-    let (nums, chars_to_resolved_chars) = find_char_mapped_to_b(nums, chars_to_resolved_chars);
+    let (nums, chars_to_resolved_chars) = find_char_mapped_to_by_substraction(nums, chars_to_resolved_chars, "d", "2", "1");
+    let (nums, chars_to_resolved_chars) = find_char_mapped_to_by_substraction(nums, chars_to_resolved_chars, "b", "4", "1");
     let (nums, chars_to_resolved_chars) = find_char_mapped_to_c(nums, chars_to_resolved_chars);
     let (_, chars_to_resolved_chars) = find_char_mapped_to_f(nums, chars_to_resolved_chars);
 
