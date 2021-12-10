@@ -18,14 +18,18 @@ enum LineStatus {
     Valid,
 }
 
+type Line = Vec<String>;
+
+type LineUnclosedParens = Vec<String>;
+
 fn get_line_status(
     line: &String,
     paren_open_to_close: &HashMap<String, String>,
-) -> (LineStatus, Vec<String>) {
-    let mut unclosed_parens = Vec::<String>::new();
+) -> (LineStatus, LineUnclosedParens) {
+    let mut unclosed_parens = LineUnclosedParens::new();
     let open_parens: HashSet<String> = paren_open_to_close.keys().map(|k| k.to_string()).collect();
 
-    for (idx, paren) in line.chars().enumerate() {
+    for (_, paren) in line.chars().enumerate() {
         if open_parens.contains(&paren.to_string()) {
             unclosed_parens.push(paren.to_string())
         } else {
@@ -83,7 +87,7 @@ pub fn task1_run(path: &str) -> i64 {
     lines
         .into_iter()
         .map(|l| {
-            let (status, unclosed) = get_line_status(&l, &paren_close_to_open);
+            let (status, _) = get_line_status(&l, &paren_close_to_open);
             status
         })
         .map(|line_result| match line_result {
@@ -137,13 +141,11 @@ pub fn task2_run(path: &str) -> i64 {
         results.push(
             total
         );
-        println!("unclosed={:?}, total={}", unclosed, total);
         
     };
     results.sort();
-    println!("results={:?}", results);
-    let mid = results[results.len() / 2];
-    mid
+    let middle_result = results[results.len() / 2];  // Results are expected to always be of odd length.
+    middle_result
 
 }
 
