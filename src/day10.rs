@@ -18,8 +18,6 @@ enum LineStatus {
     Valid,
 }
 
-type Line = Vec<String>;
-
 type LineUnclosedParens = Vec<String>;
 
 fn get_line_status(
