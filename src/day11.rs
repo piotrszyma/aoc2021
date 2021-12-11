@@ -111,7 +111,7 @@ fn next_step(grid: &Grid) -> i64 {
     flashes
 }
 
-fn all_energy_equal(grid: &Grid) -> bool {
+fn all_energy_equal_zero(grid: &Grid) -> bool {
     let expected_energy = 0;
 
     for row in &grid.rows {
@@ -139,8 +139,7 @@ fn flashes_simultanous_after(grid: Grid) -> i64 {
         next_step(&grid);
         step += 1;
 
-        if all_energy_equal(&grid) {
-            println!("equal_step={}", grid.rows.first().unwrap().first().unwrap().energy.get());
+        if all_energy_equal_zero(&grid) {
             return step;
         }
     }
