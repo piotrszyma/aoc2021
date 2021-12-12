@@ -156,16 +156,13 @@ pub fn task2_run(path: &str) -> i64 {
     let file = File::open(path).unwrap();
     let map = read_height_map(BufReader::new(&file));
     let low_points = get_low_points(&map);
-    println!("low_points={:?}", low_points);
     let mut low_points_sizes: Vec<i64> = low_points.into_iter().map(|p| {
         let (x, y) = p;
         get_size_of_basin((x as i8, y as i8), &map)
     }).collect();
-    println!("low_points_sizes={:?}", low_points_sizes);
     low_points_sizes.sort();
     low_points_sizes.reverse();
     let top_three_sizes = &low_points_sizes[..=2];
-    println!("top_three_sizes={:?}", top_three_sizes);
     top_three_sizes.iter().product()
 }
 
