@@ -167,7 +167,7 @@ mod tests {
 
     #[test]
     fn task1() {
-        assert_eq!(423, task1_run(DATA_FILEPATH));
+        assert_eq!(442131, task1_run(DATA_FILEPATH));
     }
 
     #[test]
