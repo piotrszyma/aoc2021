@@ -1,4 +1,3 @@
-use std::cell::Cell;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufRead;
@@ -6,7 +5,9 @@ use std::io::BufReader;
 
 static DATA_FILEPATH: &str = "data/day14.txt";
 
-type Insertions = HashMap<String, String>;
+type Polymer = HashMap<String, i64>;
+
+type Insertions = HashMap<String, Vec<String>>;
 
 #[derive(Debug)]
 struct Input {
@@ -25,17 +26,20 @@ fn read_data(reader: BufReader<&File>) -> Input {
         .map(|c| c.to_string())
         .collect();
     lines.next(); // skip empty line
-    let mut insertions = HashMap::new();
+    let mut insertions: Insertions = HashMap::new();
     for line in lines {
         let template = line.unwrap();
         let mut split = template.split(" -> ");
         let from = split.next().unwrap();
         let to = split.next().unwrap();
-        // let mut split = from.split("");
-        // split.next();
-        // let first_char = split.next().unwrap();
-        // let second_char = split.next().unwrap();
-        insertions.insert(from.to_string(), to.to_string());
+        let mut split = from.split("");
+        split.next();
+        let first_char = split.next().unwrap();
+        let second_char = split.next().unwrap();
+        insertions.insert(
+            from.to_string(),
+            vec![first_char.to_string() + to, to.to_string() + second_char],
+        );
     }
 
     Input {
@@ -44,178 +48,77 @@ fn read_data(reader: BufReader<&File>) -> Input {
     }
 }
 
-#[derive(Debug)]
-struct Count {
-    symbol: String,
-    value: u64,
-}
-
-#[derive(Debug)]
-struct TopCounts {
-    most_common: Count,
-    least_common: Count,
-}
-
-fn most_least_common(template: String) -> TopCounts {
-    let mut counts: HashMap<String, u64> = HashMap::new();
-    let mut most_common = template.chars().nth(0).unwrap().to_string();
-    let mut least_common = template.chars().nth(0).unwrap().to_string();
-
-    for c in template.chars() {
-        let entry = counts.get(&c.to_string()).unwrap_or(&0);
-        let entry = entry + 1;
-
-        let most_common_count = counts.get(&most_common);
-        if most_common_count.is_none() || most_common_count.unwrap() < &entry {
-            most_common = c.to_string();
-        }
-
-        let least_common_count = counts.get(&least_common);
-        if least_common_count.is_none() || least_common_count.unwrap() > &entry {
-            least_common = c.to_string();
-        }
-
-        counts.insert(c.to_string(), entry);
-    }
-
-    let most_common_count = counts.get(&most_common).unwrap();
-    let least_common_count = counts.get(&least_common).unwrap();
-
-    TopCounts {
-        most_common: Count {
-            symbol: most_common.to_string(),
-            value: *most_common_count,
-        },
-        least_common: Count {
-            symbol: least_common.to_string(),
-            value: *least_common_count,
-        },
-    }
-}
-
-// fn perform_step(template: Vec<String>, insertions: &Insertions) -> Vec<String> {
-//     let mut new_template: Vec<String> = Vec::new();
-
-//     let first_char = template.first().unwrap().to_string();
-
-//     new_template.push(first_char);
-
-//     for window in template.windows(2) {
-//         let prev = &window[0];
-//         let next = &window[1];
-//         let key = (prev.to_string(), next.to_string());
-//         if insertions.contains_key(&key) {
-//             let value = insertions.get(&key).unwrap();
-//             new_template.push(value.to_string());
-//         }
-//         new_template.push(next.to_string());
-//     }
-
-//     new_template
-// }
-
-fn insert_between(insert_into: &String, value: &String) -> String {
-    if insert_into.len() != 2 {
-        panic!("Can insert only into string of len 2")
-    }
-
-    let mut with_inserted = String::new();
-    let mut insert_into = insert_into.chars();
-    let first_char = insert_into.next().unwrap();
-    let second_char = insert_into.next().unwrap();
-    let new_char = value.chars().next().unwrap();
-
-    with_inserted.push(first_char);
-    with_inserted.push(new_char);
-    with_inserted.push(second_char);
-
-    return with_inserted;
-}
-
-fn drop_last_char(value: String) -> String {
-    let len = value.len();
-    (&value[0..len - 1]).to_string()
-}
-
-fn get_last_char(value: String) -> String {
-    let len = value.len();
-    (&value[len - 1..len]).to_string()
-}
-
-fn find_after(
-    template: String,
-    after_steps: i64,
-    insertions: &HashMap<String, String>,
-    cache: &mut HashMap<(String, i64), String>,
-) -> String {
-    if after_steps == 0 {
-        return template;
-    }
-
-    match cache.get(&(template.to_string(), after_steps)) {
-        Some(value) => return value.to_string(),
-        _ => (),
-    }
-
-    if template.len() == 2 {
-        let result = match insertions.get(&template) {
-            Some(new_key) => {
-                let new_template = insert_between(&template, new_key);
-                find_after(new_template, after_steps - 1, insertions, cache)
-                // let after_step_less_one = after_steps - 1;
-                // // TODO: after_steps / 2
-                // if after_step_less_one % 2 == 0 {
-                //     let intermediate_template =
-                //         find_after(new_template, after_step_less_one / 2, insertions, cache);
-                //     find_after(intermediate_template, after_step_less_one / 2, insertions, cache)
-                // } else {
-                //     find_after(new_template, after_step_less_one - 1, insertions, cache)
-                // }
-            }
-            _ => template.to_string(),
-        };
-        // cache.insert((template.to_string(), after_steps), result);
-        cache.insert((template.to_string(), after_steps), result.to_string());
-        return result;
-    } else if template.len() > 2 {
-        let mut new_template = String::new();
-        for chunk in split_into_doubles(&template) {
-            let result = find_after(chunk, after_steps, insertions, cache);
-            new_template += &drop_last_char(result);
-        }
-        new_template += &get_last_char(template);
-        new_template
-    } else {
-        panic!("Called with template len < 2.")
-    }
-}
-
-fn split_into_doubles(template: &String) -> Vec<String> {
+fn group_in_pairs(value: &String) -> Vec<String> {
     let mut idx = 0;
-    let max_idx = template.len() - 2; // element last - 1
+    let max_idx = value.len() - 2;
 
-    let mut template_windows = Vec::new();
+    let mut result = Vec::new();
 
     while idx <= max_idx {
-        template_windows.push((&template[idx..=idx + 1]).to_string());
-
+        result.push((&value[idx..=idx + 1]).to_string());
         idx += 1;
     }
 
-    return template_windows;
+    return result;
+}
+
+fn run_step(polymer: Polymer, insertions: &Insertions) -> Polymer {
+    let mut new_polymer = Polymer::new();
+
+    for (pair, count) in polymer.iter() {
+        match insertions.get(pair) {
+            Some(new_pairs) => {
+                for new_pair in new_pairs {
+                    let entry = new_polymer.entry(new_pair.to_string()).or_insert(0);
+                    *entry += count
+                }
+            }
+            _ => {
+                let entry = new_polymer.entry(pair.to_string()).or_insert(0);
+                *entry += count
+            }
+        }
+    }
+
+    new_polymer
+}
+
+fn polymer_from_template(template: &String) -> Polymer {
+    let mut polymer = Polymer::new();
+    for e in group_in_pairs(&template) {
+        let entry = polymer.entry(e).or_insert(0);
+        *entry += 1;
+    }
+    polymer
 }
 
 fn run_steps(path: &str, steps: i64) -> i64 {
     let file = File::open(path).unwrap();
     let data = read_data(BufReader::new(&file));
 
-    let final_template = find_after(data.template, steps, &data.insertions, &mut HashMap::new());
+    let mut polymer = polymer_from_template(&data.template);
 
-    println!("final_template={:?}", final_template);
-    let top_counts = most_least_common(final_template);
-    println!("top_counts={:?}", top_counts);
-    let result = top_counts.most_common.value - top_counts.least_common.value;
-    result as i64
+    for _ in 1..=steps {
+        polymer = run_step(polymer, &data.insertions);
+    }
+
+    let mut counts = HashMap::<String, i64>::new();
+    for (pair, count) in polymer.iter() {
+        for c in pair.chars() {
+            let entry = counts.entry(c.to_string()).or_insert(0);
+            *entry += count;
+        }
+    }
+
+    let mut sorted_counts: Vec<i64>  = counts.into_iter().map(|(_, count)| {
+        (count + 1) / 2
+    }).collect();
+    sorted_counts.sort();
+
+    let smallest_count = sorted_counts.first().unwrap();
+    let biggest_count = sorted_counts.last().unwrap();
+
+    biggest_count - smallest_count
 }
 
 pub fn task1_run(path: &str) -> i64 {
@@ -249,18 +152,32 @@ mod tests {
         assert_eq!(2587, task1_run(DATA_FILEPATH));
     }
 
-    // #[test]
-    // fn task2_test_data() {
-    //     assert_eq!(0, task2_run(TEST_DATA_FILEPATH))
-    // }
+    #[test]
+    fn task2_test_data() {
+        assert_eq!(2188189693529, task2_run(TEST_DATA_FILEPATH))
+    }
 
-    // #[test]
-    // fn task2() {
-    //     assert_eq!(0, task2_run(DATA_FILEPATH))
-    // }
+    #[test]
+    fn task2() {
+        assert_eq!(3318837563123, task2_run(DATA_FILEPATH))
+    }
 
-    // #[test]
-    // fn test_split_into_doubles() {
-    //     assert_eq!(vec!["ab".to_string(), "bc".to_string(), "cd".to_string()], split_into_doubles("abcd".to_string()))
-    // }
+    #[test]
+    fn test_run_step() {
+        assert_eq!(1/2, 0);
+        let insertions = Insertions::from([
+            (
+                String::from("AB"),
+                vec![String::from("AC"), String::from("CB")],
+            ),
+            (
+                String::from("DE"),
+                vec![String::from("DC"), String::from("CE")],
+            ),
+        ]);
+        let polymer = Polymer::from([(String::from("AB"), 2), (String::from("AC"), 2)]);
+        let expected = Polymer::from([(String::from("AC"), 4), (String::from("CB"), 2)]);
+
+        assert_eq!(expected, run_step(polymer, &insertions));
+    }
 }
