@@ -109,7 +109,7 @@ class Result:
     p1: int
     p2: int
 
-    def __add__(self, other: 'Result') -> 'Result':
+    def __add__(self, other: "Result") -> "Result":
         return Result(p1=self.p1 + other.p1, p2=self.p2 + other.p2)
 
 
@@ -117,19 +117,21 @@ def counts_given(
     p1_pos, p2_pos, p1_points_needed, p2_points_needed, is_player1_move, cache=dict
 ) -> Result:
     # print(f"{p1_pos=}, {p2_pos=}, {p1_points_needed=}, {p2_points_needed=}, {is_player1_move=}")
-    assert not (p1_points_needed <= 0 and p2_points_needed <=0)
+    assert not (p1_points_needed <= 0 and p2_points_needed <= 0)
 
     if p1_points_needed <= 0:
-        assert p2_points_needed>0
+        assert p2_points_needed > 0
         res = Result(p1=1, p2=0)
         return res
 
     if p2_points_needed <= 0:
-        assert p1_points_needed>0
+        assert p1_points_needed > 0
         res = Result(p1=0, p2=1)
         return res
 
-    if cached := cache.get((p1_pos, p2_pos, p1_points_needed, p2_points_needed, is_player1_move)):
+    if cached := cache.get(
+        (p1_pos, p2_pos, p1_points_needed, p2_points_needed, is_player1_move)
+    ):
         return cached
 
     results: list[Result] = []
@@ -169,13 +171,10 @@ def counts_given(
     for r in results:
         final_result += r
 
-    cache[(p1_pos, p2_pos, p1_points_needed, p2_points_needed, is_player1_move)] = final_result
+    cache[
+        (p1_pos, p2_pos, p1_points_needed, p2_points_needed, is_player1_move)
+    ] = final_result
     return final_result
-
-    # res = counts_given()
-
-    # for first_move, second_move, third_move in product([1, 2, 3], [1, 2, 3], [1, 2, 3]):
-    #     pass
 
 
 def solve_task2(lines: list[str]) -> int:
@@ -183,7 +182,7 @@ def solve_task2(lines: list[str]) -> int:
     player2_pos = int(lines[1].strip()[-1]) - 1 % 10
 
     print(f"{player1_pos+1=} {player2_pos+1=}")
-    
+
     points_needed = 21
 
     cache = {}
