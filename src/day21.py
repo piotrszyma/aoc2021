@@ -203,8 +203,8 @@ def solve_task2(lines: list[str]) -> int:
 
 
 DAY_NO = 21
-TASK_1 = 1
-TASK_2 = 2
+TASK_1 = '1'
+TASK_2 = '2'
 DATA = f"day{DAY_NO}.txt"
 TEST_DATA = f"day{DAY_NO}_test.txt"
 
@@ -212,16 +212,29 @@ TEST_DATA = f"day{DAY_NO}_test.txt"
 def main():
     import sys
 
-    filename = dict(enumerate(sys.argv)).get(1, TEST_DATA)
-    task_no = int(dict(enumerate(sys.argv)).get(2, TASK_1))
+    filename = dict(enumerate(sys.argv)).get(1)
+    task_no = dict(enumerate(sys.argv)).get(2)
 
-    lines = read_input_lines(filename)
-    if task_no == TASK_1:
-        result = solve_task1(lines)
-    elif task_no == TASK_2:
-        result = solve_task2(lines)
+    if not filename:
+        data_lines = read_input_lines(DATA)
+        test_data_lines = read_input_lines(TEST_DATA)
+
+        result = solve_task1(test_data_lines)
+        assert result == 739785, result
+        result = solve_task1(data_lines)
+        assert result == 989352, result
+        result = solve_task2(test_data_lines)
+        assert result == 444356092776315, result
+        result = solve_task2(data_lines)
+        assert result == 430229563871565, result
     else:
-        raise RuntimeError()
+        lines = read_input_lines(filename)
+        if task_no == TASK_1:
+            result = solve_task1(lines)
+        elif task_no == TASK_2:
+            result = solve_task2(lines)
+        else:
+            raise RuntimeError()
 
     print(f"{task_no=}, {filename=}, {result=}")
 
