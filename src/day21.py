@@ -1,5 +1,5 @@
+import sys
 from dataclasses import dataclass
-from copy import copy
 
 
 def read_input_lines(filename: str) -> list[str]:
@@ -21,34 +21,6 @@ class Dice:
         return value
 
 
-class Game:
-    def __init__(self, player1_pos: int, player2_pos: int):
-        self.player1_pos = player1_pos
-        self.player2_pos = player2_pos
-        self.player1_score = 0
-        self.player2_score = 0
-
-    def won_by_player1(self):
-        return self.player1_score >= 21
-
-    def won_by_player2(self):
-        return self.player2_score >= 21
-
-    def player1_roll(self, roll_result):
-        self.player1_pos += roll_result
-        self.player1_pos %= 10
-
-    def player2_roll(self, roll_result):
-        self.player2_pos += roll_result
-        self.player2_pos %= 10
-
-    def update_player1_score(self):
-        self.player1_score += self.player1_pos + 1
-
-    def update_player2_score(self):
-        self.player2_score += self.player2_pos + 1
-
-
 def product(*args, repeat=1):
     # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
     # product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
@@ -68,35 +40,25 @@ def solve_task1(lines: list[str]) -> int:
 
     dice = Dice()
 
-    while player1_score < 1000 and player2_score < 1000:
+    while True:
 
         # player1 move
-        for _ in range(3):
-            roll_result = dice.roll()
-            print(f"{roll_result=}")
-            player1_pos += roll_result
-            player1_pos %= 10
+        roll_result = sum(dice.roll() for _ in range(3))
+        player1_pos += roll_result
+        player1_pos %= 10
         player1_score += player1_pos + 1
 
         if player1_score >= 1000:
             break
 
         # player2 move
-        roll_result = dice.roll()
-        print(f"{roll_result=}")
-        player2_pos += roll_result
-        player2_pos %= 10
-
-        roll_result = dice.roll()
-        print(f"{roll_result=}")
-        player2_pos += roll_result
-        player2_pos %= 10
-
-        roll_result = dice.roll()
-        print(f"{roll_result=}")
+        roll_result = sum(dice.roll() for _ in range(3))
         player2_pos += roll_result
         player2_pos %= 10
         player2_score += player2_pos + 1
+
+        if player2_score >= 1000:
+            break
 
     print(f"{player1_score=} {player2_score=}")
 
@@ -203,15 +165,13 @@ def solve_task2(lines: list[str]) -> int:
 
 
 DAY_NO = 21
-TASK_1 = '1'
-TASK_2 = '2'
+TASK_1 = "1"
+TASK_2 = "2"
 DATA = f"day{DAY_NO}.txt"
 TEST_DATA = f"day{DAY_NO}_test.txt"
 
 
 def main():
-    import sys
-
     filename = dict(enumerate(sys.argv)).get(1)
     task_no = dict(enumerate(sys.argv)).get(2)
 
@@ -227,14 +187,15 @@ def main():
         assert result == 444356092776315, result
         result = solve_task2(data_lines)
         assert result == 430229563871565, result
+        return
+
+    lines = read_input_lines(filename)
+    if task_no == TASK_1:
+        result = solve_task1(lines)
+    elif task_no == TASK_2:
+        result = solve_task2(lines)
     else:
-        lines = read_input_lines(filename)
-        if task_no == TASK_1:
-            result = solve_task1(lines)
-        elif task_no == TASK_2:
-            result = solve_task2(lines)
-        else:
-            raise RuntimeError()
+        raise RuntimeError()
 
     print(f"{task_no=}, {filename=}, {result=}")
 
