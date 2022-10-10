@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -78,25 +77,21 @@ fn read_data_expanded(reader: BufReader<&File>) -> Cave {
 
             if big_row_idx == 0 && big_col_idx == 0 {
                 updated_row.push(*cell);
-                continue
+                continue;
             }
 
             if big_col_idx == 0 {
                 let prev_value = updated_rows[row_idx - 10][col_idx];
                 let new_value = if prev_value == 9 { 1 } else { prev_value + 1 };
                 updated_row.push(new_value);
-                continue
+                continue;
             }
         }
 
         for _ in 0..40 {
             let idx = updated_row.len() - 10;
             let element = updated_row.get(idx).unwrap();
-            let new_element = if element == &9 {
-                1
-            } else {
-                element + 1
-            };
+            let new_element = if element == &9 { 1 } else { element + 1 };
             updated_row.push(new_element)
         }
 
@@ -184,7 +179,6 @@ fn find_least_risky(cave: &Cave) -> i64 {
             }
         }
     }
-
 
     println!("risk rows={:?}", rows);
 

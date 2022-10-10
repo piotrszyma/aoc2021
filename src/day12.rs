@@ -66,20 +66,23 @@ fn find_paths(
             let mut can_visit_small_twice = can_visit_small_twice;
 
             if cave_kind(adjacent_cave) == CaveKind::Small && path.contains(adjacent_cave) {
-                if adjacent_cave == END_CAVE || adjacent_cave == START_CAVE || !can_visit_small_twice {
+                if adjacent_cave == END_CAVE
+                    || adjacent_cave == START_CAVE
+                    || !can_visit_small_twice
+                {
                     continue;
                 } else {
                     can_visit_small_twice = false;
                 }
-            } 
+            }
 
             let mut new_path = path.clone();
             new_path.push(start_cave.to_string()); // Add cave we entered on this find_paths call.
 
-            let found_paths = find_paths(adjacent_cave, new_path, connections, can_visit_small_twice);
+            let found_paths =
+                find_paths(adjacent_cave, new_path, connections, can_visit_small_twice);
             paths.extend(found_paths);
-
-        };
+        }
 
         return paths;
     };

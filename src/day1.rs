@@ -24,7 +24,7 @@ fn count_increasing_of_three(nums: Vec<i64>) -> i64 {
 fn read_nums(reader: BufReader<&std::fs::File>) -> Vec<i64> {
     reader
         .lines()
-        .map(|l| l.unwrap().parse().unwrap())
+        .map(|l| l.expect("to be an integer").parse().unwrap())
         .collect()
 }
 

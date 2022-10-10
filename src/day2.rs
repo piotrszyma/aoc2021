@@ -60,8 +60,8 @@ fn final_position(commands: Vec<BoatCommand>) -> BoatPosition {
     }
 
     BoatPosition {
-        horizontal_position: horizontal_position,
-        depth: depth,
+        horizontal_position,
+        depth,
     }
 }
 
@@ -82,8 +82,8 @@ fn final_position_with_aim(commands: Vec<BoatCommand>) -> BoatPosition {
     }
 
     BoatPosition {
-        horizontal_position: horizontal_position,
-        depth: depth,
+        horizontal_position,
+        depth,
     }
 }
 

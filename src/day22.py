@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import Iterable, Literal, Optional
 import sys
 from dataclasses import dataclass
@@ -9,7 +8,9 @@ class CoordRange:
     start: int
     end: int
 
+
 StepKind = Literal["on", "off"]
+
 
 @dataclass
 class Step:
@@ -38,7 +39,10 @@ def steps_from_lines(lines: list[str], min_pos: int, max_pos: int) -> Iterable[S
         if any((r.end < min_pos) for r in ranges):
             continue
 
-        ranges = [CoordRange(start=max(min_pos, r.start), end=min(max_pos, r.end)) for r in ranges]
+        ranges = [
+            CoordRange(start=max(min_pos, r.start), end=min(max_pos, r.end))
+            for r in ranges
+        ]
 
         yield Step(
             kind="on" if kind == "on" else "off",
@@ -48,23 +52,12 @@ def steps_from_lines(lines: list[str], min_pos: int, max_pos: int) -> Iterable[S
         )
 
 
-def _is_step_in_range(step: Step, min_pos: int, max_pos: int):
-    return (
-        step.x.start >= min_pos
-        and step.x.end <= max_pos
-        and step.y.start >= min_pos
-        and step.y.end <= max_pos
-        and step.z.start >= min_pos
-        and step.z.end <= max_pos
-    )
-
-
 def solve_task1(lines: list[str]) -> int:
     min_pos = -50
     max_pos = 50
     steps = steps_from_lines(lines, min_pos, max_pos)
 
-    cubes_kinds: dict[tuple[int, int, int], StepKind]= dict()
+    cubes_kinds: dict[tuple[int, int, int], StepKind] = dict()
 
     for step in steps:
         for x in range(step.x.start, step.x.end + 1):
@@ -81,51 +74,131 @@ def solve_task1(lines: list[str]) -> int:
                     ctr += 1
     return ctr
 
-def on_ranges_add(on_ranges: list[CoordRange], range_to_add: CoordRange) -> list[CoordRange]:
-    updated_on_range = []
-    for range in on_ranges:
-        if range.end < range_to_add.start:
-            updated_on_range.append(range)
-        elif range.end > range_to_add.start:
-            if range_to_add.end <= range.end:
-                return on_ranges
-            elif range_to_add.end > range.end:
-                # updated_on_range.append()
+
+def _is_range_before(range_to_check: CoordRange, other_range: CoordRange) -> bool:
+    return (
+        range_to_check.start < other_range.start
+        and range_to_check.end < other_range.start
+    )
 
 
-def get_on_ranges(steps: list[Step], axis: Literal['x', 'y', 'z']):
-    on_ranges: list[CoordRange] = []
+def _is_range_partial_left_overlapping(
+    range_to_check: CoordRange, other_range: CoordRange
+) -> bool:
+    return (
+        range_to_check.start < other_range.start
+        and range_to_check.end > other_range.end
+    )
+
+
+def _is_range_inside(range_to_check: CoordRange, other_range: CoordRange) -> bool:
+    return (
+        range_to_check.start > other_range.start
+        and range_to_check.end < other_range.end
+    )
+
+
+def _is_range_partial_right_overlapping(
+    range_to_check: CoordRange, other_range: CoordRange
+) -> bool:
+    return (
+        range_to_check.start < other_range.end and range_to_check.end > other_range.end
+    )
+
+
+def _is_range_after(range_to_check: CoordRange, other_range: CoordRange) -> bool:
+    return (
+        range_to_check.start > other_range.start
+        and range_to_check.end > other_range.end
+    )
+
+
+def range_add(ranges: list[CoordRange], range_to_add: CoordRange) -> list[CoordRange]:
+    updated_ranges = []
+    range_added = False
+
+    for range in ranges:
+        if _is_range_before(range, range_to_add):
+            updated_ranges.append(range)
+        elif _is_range_partial_left_overlapping(range, range_to_add):
+            new_range = CoordRange(start=range.start, end=range_to_add.end)
+            updated_ranges.append(new_range)
+            range_added = True
+        elif _is_range_inside(range, range_to_add):
+            if not range_added:
+                updated_ranges.append(range_to_add)
+                range_added = True
+        elif _is_range_partial_right_overlapping(range, range_to_add):
+            if range_added:
+                new_range = CoordRange(start=range_to_add.end, end=range.end)
+                updated_ranges.append(new_range)
+            else:  # Range not yet added.
+                new_range = CoordRange(start=range_to_add.start, end=range.end)
+                updated_ranges.append(new_range)
+                range_added = True
+        elif _is_range_after(range, range_to_add):
+            updated_ranges.append(range)
+        else:
+            raise ValueError(f"Invalid ranges relation {range=} {range_to_add=}")
+
+    return updated_ranges
+
+
+def range_substract(
+    ranges: list[CoordRange], range_to_substract: CoordRange
+) -> list[CoordRange]:
+    updated_ranges = []
+
+    for range in ranges:
+        if _is_range_before(range, range_to_substract):
+            updated_ranges.append(range)
+        elif _is_range_partial_left_overlapping(range, range_to_substract):
+            new_range = CoordRange(start=range.start, end=range_to_substract.end - 1)
+            updated_ranges.append(new_range)
+        elif _is_range_inside(range, range_to_substract):
+            continue
+        elif _is_range_partial_right_overlapping(range, range_to_substract):
+            new_range = CoordRange(start=range_to_substract.start + 1, end=range.end)
+            updated_ranges.append(new_range)
+        elif _is_range_after(range, range_to_substract):
+            updated_ranges.append(range)
+        else:
+            raise ValueError(f"Invalid ranges relation {range=} {range_to_substract=}")
+
+    return updated_ranges
+
+
+def build_ranges_for_axis(steps: list[Step], axis: Literal["x", "y", "z"]):
+    ranges: list[CoordRange] = []
+
     for step in steps:
+        range: Optional[CoordRange] = getattr(step, axis)
+        if range is None:
+            raise ValueError(f"Invalid {axis=}")
+
         if step.kind == "on":
-            range: Optional[CoordRange] = getattr(step, axis)
-            if range is None:
-                raise ValueError(f"Invalid {axis=}")
-            on_ranges = on_ranges_add(on_ranges, range)
+            ranges = range_add(ranges, range)
+            print(ranges)
+        elif step.kind == "off":
+            ranges = range_substract(ranges, range)
+        else:
+            raise ValueError(f"Invalid step kind {step.kind=}")
+
+    return ranges
+
 
 def solve_task2(lines: list[str]) -> int:
     min_pos = -sys.maxsize
     max_pos = sys.maxsize
-    steps = steps_from_lines(lines, min_pos, max_pos)
+    steps = list(steps_from_lines(lines, min_pos, max_pos))
 
-    cubes_kinds: dict[tuple[int, int, int], StepKind]= dict()
-
-    for step in steps:
-        for x in range(step.x.start, step.x.end + 1):
-            for y in range(step.y.start, step.y.end + 1):
-                for z in range(step.z.start, step.z.end + 1):
-                    cubes_kinds[(x, y, z)] = step.kind
+    x_ranges = build_ranges_for_axis(steps, "x")
+    y_ranges = build_ranges_for_axis(steps, "y")
+    z_ranges = build_ranges_for_axis(steps, "z")
 
     breakpoint()
-    ctr = 0
-    for x in range(min_pos, max_pos + 1):
-        for y in range(min_pos, max_pos + 1):
-            for z in range(min_pos, max_pos + 1):
-                kind = cubes_kinds.get((x, y, z))
-                if kind is not None and kind == "on":
-                    ctr += 1
-    return ctr
 
-
+    return 0
 
 
 DAY_NO = 22
