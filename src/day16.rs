@@ -23,14 +23,15 @@ struct Packet{
     type_: u32,
 }
 
+#[derive(PartialEq, Debug)]
 enum PacketType {
     Literal = 6,
 }
 
-impl TryFrom<i32> for PacketType {
+impl TryFrom<u32> for PacketType {
     type Error = ();
 
-    fn try_from(v: i32) -> Result<Self, Self::Error> {
+    fn try_from(v: u32) -> Result<Self, Self::Error> {
         match v {
             6 => Ok(PacketType::Literal),
             _ => Err(()),
@@ -40,6 +41,12 @@ impl TryFrom<i32> for PacketType {
 
 enum PacketValue {
     Literal(u32)
+}
+
+fn value_literal_to_u32(value: String) -> u32 {
+    let chars: Vec<_> = value.chars().collect();
+    chars.windows(4).map(|w| )
+    1
 }
 
 impl Packet {
@@ -62,12 +69,13 @@ impl Packet {
         }
     }
 
-    fn value_literal(self) -> PacketType::Literal {
-        assert!(self.type_.into() == PacketType::Literal);
-        0
+    fn value_literal(&self) -> u32 {
+        let packet_type = PacketType::try_from(self.type_).unwrap();
+        assert_eq!(PacketType::Literal, packet_type);
+        value_literal_to_u32(self.raw_content.to_string())
     }
 
-    fn value(self) -> PacketValue {
+    fn value(self) -> u32 {
         self.value_literal()
     }
 }
