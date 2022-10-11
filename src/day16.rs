@@ -1,4 +1,7 @@
 use std::fmt;
+use std::convert::TryFrom;
+
+use crate::hex::{hex_str_to_bin, bin_str_to_u32};
 
 // packet
 // first three bits packet version <-- most sign bits first
@@ -15,23 +18,57 @@ struct Packet{
     raw_version: String,
     raw_type: String,
     raw_content: String,
+
+    version: u32,
+    type_: u32,
 }
 
-fn hex_str_to_bin(hex: String) -> String {
-    let n: u32 = u32::from_str_radix(&hex, 16).unwrap();
-    format!("{n:b}")
+enum PacketType {
+    Literal = 6,
+}
+
+impl TryFrom<i32> for PacketType {
+    type Error = ();
+
+    fn try_from(v: i32) -> Result<Self, Self::Error> {
+        match v {
+            6 => Ok(PacketType::Literal),
+            _ => Err(()),
+        }
+    }
+}
+
+enum PacketValue {
+    Literal(u32)
 }
 
 impl Packet {
     fn from_string(hex_input: String) -> Self {
-        let raw_version = &hex_input[..3];
-        let raw_type = &hex_input[3..6];
-        let raw_content = &hex_input[6..];
+        let bin_input = hex_str_to_bin(hex_input);
+
+        let raw_version = &bin_input[..3];
+        let raw_type = &bin_input[3..6];
+        let raw_content = &bin_input[6..];
+
+        let type_ = bin_str_to_u32(raw_type.to_string());
+        let version = bin_str_to_u32(raw_version.to_string());
+
         Self {
             raw_version: raw_version.to_string(),
             raw_type: raw_type.to_string(),
             raw_content: raw_content.to_string(),
+            version,
+            type_,
         }
+    }
+
+    fn value_literal(self) -> PacketType::Literal {
+        assert!(self.type_.into() == PacketType::Literal);
+        0
+    }
+
+    fn value(self) -> PacketValue {
+        self.value_literal()
     }
 }
 
@@ -45,15 +82,18 @@ impl<'a> fmt::Display for Packet {
 #[cfg(test)]
 mod tests {
     use super::*;
-    // static TEST_DATA_FILEPATH: &str = "data/day16_test.txt";
 
     #[test]
-    fn task1_test1() {
-        let input = String::from("D2FE28");
-        let bin_input = hex_str_to_bin(input);
-        let packet = Packet::from_string(input);
+    fn test_packet_from_string() {
+        let raw_input = String::from("D2FE28");
+        let packet = Packet::from_string(raw_input);
 
-        println!("{}", packet)
+        assert_eq!("110", packet.raw_version);
+        assert_eq!("100", packet.raw_type);
+        assert_eq!("101111111000101000", packet.raw_content);
+
+        assert_eq!(6, packet.version);
+        assert_eq!(4, packet.type_);
     }
 
 }
