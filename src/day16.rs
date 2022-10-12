@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, ops::Add};
 use std::convert::TryFrom;
 
 use crate::hex::{hex_str_to_bin, bin_str_to_u32};
@@ -44,9 +44,20 @@ enum PacketValue {
 }
 
 fn value_literal_to_u32(value: String) -> u32 {
-    let chars: Vec<_> = value.chars().collect();
-    chars.windows(4).map(|w| )
-    1
+    let mut start = 0;
+    let mut bin_val = String::new();
+    loop {
+        let chunk = &value[start..start+5];
+        let chunk_bin_value = &chunk[1..];
+        bin_val.push_str(chunk_bin_value.into());
+
+        if chunk.starts_with("0") {
+            break
+        }
+
+        start += 5;
+    };
+    bin_str_to_u32(bin_val)
 }
 
 impl Packet {
@@ -102,6 +113,22 @@ mod tests {
 
         assert_eq!(6, packet.version);
         assert_eq!(4, packet.type_);
+    }
+
+
+    #[test]
+    fn test_value_literal_0() {
+        let input = String::from("00000");
+        let value = value_literal_to_u32(input);
+        assert_eq!(0, value)
+    }
+
+
+    #[test]
+    fn test_value_literal_2021() {
+        let input = String::from("101111111000101000");
+        let value = value_literal_to_u32(input);
+        assert_eq!(2021, value)
     }
 
 }
