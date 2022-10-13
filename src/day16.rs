@@ -26,21 +26,25 @@ struct Packet{
 #[derive(PartialEq, Debug)]
 enum PacketType {
     Literal = 6,
+    Other,
 }
 
-impl TryFrom<u32> for PacketType {
-    type Error = ();
-
-    fn try_from(v: u32) -> Result<Self, Self::Error> {
+impl From<u32> for PacketType {
+    fn from(v: u32) -> Self {
         match v {
-            6 => Ok(PacketType::Literal),
-            _ => Err(()),
+            6 => PacketType::Literal,
+            _ => PacketType::Other,
         }
     }
 }
 
 enum PacketValue {
     Literal(u32)
+}
+
+enum Operator {
+    TypeZero,
+    TypeOne,
 }
 
 fn value_literal_to_u32(value: String) -> u32 {
@@ -81,13 +85,37 @@ impl Packet {
     }
 
     fn value_literal(&self) -> u32 {
-        let packet_type = PacketType::try_from(self.type_).unwrap();
+        let packet_type = self.packet_type();
         assert_eq!(PacketType::Literal, packet_type);
         value_literal_to_u32(self.raw_content.to_string())
     }
 
-    fn value(self) -> u32 {
-        self.value_literal()
+    fn packet_type(&self) -> PacketType {
+        PacketType::from(self.type_)
+    }
+
+    fn value(self) -> Result<u32, &'static str> {
+        if self.packet_type() == PacketType::Literal {
+            Ok(self.value_literal())
+        } else {
+            Err("Packet that is not literal cannot have value.")
+        }
+    }
+
+    fn length_type_id(self) -> Result<String, &'static str> {
+        if self.packet_type() == PacketType::Literal {
+            Err("packet that is literal has no length type id")
+        } else {
+            Ok(self.raw_content[..0].into())
+        }
+    }
+
+    fn packets(self) -> Result<Vec<Packet>, &'static str> {
+        if self.packet_type() == PacketType::Literal {
+            return Err("packet that is literal cannot have subpackets")
+        };
+        // Parse packets.
+        Ok(Vec::new())
     }
 }
 
@@ -129,6 +157,14 @@ mod tests {
         let input = String::from("101111111000101000");
         let value = value_literal_to_u32(input);
         assert_eq!(2021, value)
+    }
+
+    #[test]
+    fn test_length_type_id() {
+        let raw_input = String::from("38006F45291200");
+        let packet = Packet::from_string(raw_input);
+
+        assert_eq!("0", packet.length_type_id().unwrap())
     }
 
 }

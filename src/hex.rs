@@ -8,8 +8,12 @@ pub fn bin_str_to_u32(bin_input: String) -> u32 {
 
 
 pub fn hex_str_to_bin(hex_input: String) -> String {
-    let n = hex_str_to_u32(hex_input);
-    format!("{n:b}")
+    let mut output = String::new();
+    for c in hex_input.chars() {
+        let n = hex_str_to_u32(c.to_string());
+        output.push_str(&format!("{n:0>4b}"))
+    };
+    output
 }
 
 #[cfg(test)]
@@ -33,6 +37,22 @@ mod tests {
         let hex = String::from("A");
         let bin = hex_str_to_bin(hex);
         assert_eq!(String::from("1010"), bin)
+    }
+
+    #[test]
+    fn text_hex_to_bin_0() {
+        let hex = "0000";
+        let bin = hex_str_to_bin(hex.to_string());
+        assert_eq!(String::from("0000000000000000"), bin)
+    }
+
+
+
+    #[test]
+    fn text_hex_to_bin_38006f45291200() {
+        let hex = "38006F45291200";
+        let bin = hex_str_to_bin(hex.to_string());
+        assert_eq!(String::from("00111000000000000110111101000101001010010001001000000000"), bin)
     }
 
 }
